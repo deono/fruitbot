@@ -3,31 +3,47 @@ const dotenv = require('dotenv');
 const path = require('path');
 const app = express();
 
-const { BotFrameworkAdapter } = require('botbuilder');
+// import bot services
+const {
+  BotFrameworkAdapter,
+  MemoryStorage,
+  ConversationState,
+  UserState
+} = require('botbuilder');
 
+// test route
 app.get('/', (req, res) => {
   res.send('You found the homework bot');
 });
 
 // This bot's main dialog.
-const { EchoBot } = require('./bot');
+const { HomeworkBot } = require('./bot');
 
-// Import required bot configuration.
+// Import environment varaibles.
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
 
-// HTTP server
+// Create the HTTP server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`homeworkbot is listening on port ${PORT}`);
 });
 
 // Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about how bots work.
 const adapter = new BotFrameworkAdapter({
   appId: process.env.MicrosoftAppId,
   appPassword: process.env.MicrosoftAppPassword
 });
+
+// Define state store for bot.
+const memoryStorage = new MemoryStorage();
+
+// Create conversation and user state with in-memory storage provider.
+const conversationState = new ConversationState(memoryStorage);
+const userState = new UserState(memoryStorage);
+
+// Create the main dialog.
+const myBot = new HomeworkBot(conversationState, userState);
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context, error) => {
@@ -49,13 +65,13 @@ const onTurnErrorHandler = async (context, error) => {
   await context.sendActivity(
     'To continue to run this bot, please fix the bot source code.'
   );
+
+  // Clear out state
+  await conversationState.delete(context);
 };
 
 // Set the onTurnError for the singleton BotFrameworkAdapter.
 adapter.onTurnError = onTurnErrorHandler;
-
-// Create the main dialog.
-const myBot = new EchoBot();
 
 // Listen for incoming requests.
 app.post('/api/messages', (req, res) => {
