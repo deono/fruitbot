@@ -65,7 +65,7 @@ class FruitDialog extends ComponentDialog {
   }
 
   async standApartStep(step) {
-    // retain the users preference
+    // retain the users preference in step.values
     step.values.preference = step.result;
     return await step.prompt(
       STAND_APPART_PROMPT,
