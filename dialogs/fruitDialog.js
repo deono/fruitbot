@@ -67,7 +67,6 @@ class FruitDialog extends ComponentDialog {
   async standApartStep(step) {
     // retain the users preference
     step.values.preference = step.result;
-    console.log('preference', step.values.preference.value);
     return await step.prompt(
       STAND_APPART_PROMPT,
       `Interesting. So what is it that makes ${step.values.preference.value.toLowerCase()} stand apart for you?`
@@ -116,7 +115,6 @@ class FruitDialog extends ComponentDialog {
   }
 
   async finalStep(step) {
-    console.log(step.values);
     step.values.drink = step.result;
     const {
       preference,
