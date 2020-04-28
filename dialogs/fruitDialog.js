@@ -15,6 +15,7 @@ const PREFERENCE_PROMPT = 'PREFERENCE_PROMPT';
 const STAND_APPART_PROMPT = 'STAND_APPART_PROMPT';
 const FAVORITE_PROMPT = 'FAVORITE_PROMPT';
 const SPECIAL_PROMPT = 'SPECIAL_PROMPT';
+const DRINK_PROMPT = 'DRINK_PROMPT';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 const FRUIT_DIALOG = 'FRUIT_DIALOG';
 const USER_PROFILE_PROPERTY = 'USER_PROFILE_PROPERTY';
@@ -35,13 +36,16 @@ class FruitDialog extends ComponentDialog {
     this.addDialog(new TextPrompt(STAND_APPART_PROMPT));
     this.addDialog(new ChoicePrompt(FAVORITE_PROMPT));
     this.addDialog(new TextPrompt(SPECIAL_PROMPT));
+    this.addDialog(new ChoicePrompt(DRINK_PROMPT));
 
     this.addDialog(
       new WaterfallDialog(WATERFALL_DIALOG, [
         this.preferenceStep.bind(this),
         this.standApartStep.bind(this),
         this.favoriteStep.bind(this),
-        this.specialStep.bind(this)
+        this.specialStep.bind(this),
+        this.drinkStep.bind(this),
+        this.finalStep.bind(this)
       ])
     );
 
@@ -93,6 +97,35 @@ class FruitDialog extends ComponentDialog {
         step.values.preference.value
       )} so special?`
     );
+  }
+
+  async drinkStep(step) {
+    const choices =
+      step.values.preference.value === 'Apples'
+        ? ['Apple Juice', 'Appletini']
+        : ['Pear Juice', 'Peartini'];
+
+    return await step.prompt(FAVORITE_PROMPT, {
+      prompt: `Ok. Which type of ${this.singular(
+        step.values.preference.value
+      )} drink do you prefer?`,
+      choices: ChoiceFactory.toChoices(choices)
+    });
+  }
+
+  async finalStep(step) {
+    step.values.drink = step.result;
+
+    if (
+      step.values.drink.value === 'Appletini' ||
+      step.values.drink.value === 'Peartini'
+    ) {
+      step.context.sendActivity('Shaken, not Stirred!');
+    } else {
+      step.context.sendActivity('A healthy option!');
+    }
+
+    return await step.endDialog();
   }
 
   // helper method: remove the last character from string
