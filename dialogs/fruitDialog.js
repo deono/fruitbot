@@ -124,14 +124,13 @@ class FruitDialog extends ComponentDialog {
       special
     } = step.values;
 
-    if (drink.value === 'Appletini' || drink.value === 'Peartini') {
-      step.context.sendActivity('Shaken, not Stirred!');
-    } else {
-      step.context.sendActivity('A healthy option!');
-    }
+    let message =
+      drink.value === 'Appletini' || drink.value === 'Peartini'
+        ? 'Shaken, not Stirred!'
+        : 'A healthy option!';
 
     // show a summary of the choices
-    step.context.sendActivity(`Here's a summary of your choices: \n 
+    step.context.sendActivity(`${message} Here's a summary of your choices: \n 
       Preferred fruit: ${preference.value} \n 
       Reason ${preference.value.toLowerCase()} stand apart: ${standApart} \n 
       Preferred type of ${this.singular(preference.value)}: ${

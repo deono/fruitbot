@@ -80,7 +80,7 @@ class MainDialog extends ComponentDialog {
 
   async finalStep(step) {
     await step.context.sendActivity(
-      `Cool! Well lovely to meet you ${this.userProfileAccessor.name}. Have a great day. FruitBot signing off. Type anything to start again.`
+      `Cool! Well lovely to meet you ${this.userProfileAccessor.name}. Have a great day. FruitBot signing off.`
     );
 
     await step.context.sendActivity('Type anything to start again.');
