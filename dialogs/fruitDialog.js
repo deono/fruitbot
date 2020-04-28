@@ -132,13 +132,13 @@ class FruitDialog extends ComponentDialog {
 
     // show a summary of the choices
     step.context.sendActivity(`Here's a summary of your choices: \n 
-      Prefered fruit: ${preference.value} \n 
+      Preferred fruit: ${preference.value} \n 
       Reason ${preference.value.toLowerCase()} stand apart: ${standApart} \n 
-      Prefered type of ${this.singular(preference.value)}: ${
+      Preferred type of ${this.singular(preference.value)}: ${
       preferenceType.value
     } \n 
       Reason ${preferenceType.value.toLowerCase()} ${preference.value.toLowerCase()} are special: ${special} \n 
-      Prefered ${this.singular(preference.value)} drink: ${drink.value}
+      Preferred ${this.singular(preference.value)} drink: ${drink.value}
       `);
 
     return await step.endDialog();
