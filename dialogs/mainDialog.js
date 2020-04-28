@@ -67,6 +67,7 @@ class MainDialog extends ComponentDialog {
   }
 
   async handOverStep(step) {
+    step.values.name = step.result;
     // Get the current profile object from user state.
     this.userProfileAccessor = await this.userProfile.get(
       step.context,

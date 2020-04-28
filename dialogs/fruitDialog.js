@@ -75,6 +75,7 @@ class FruitDialog extends ComponentDialog {
   }
 
   async favoriteStep(step) {
+    step.values.standApart = step.result;
     // present correct choices based on prefered fruit option
     const choices =
       step.values.preference.value === 'Apples'
@@ -100,6 +101,7 @@ class FruitDialog extends ComponentDialog {
   }
 
   async drinkStep(step) {
+    step.values.special = step.result;
     const choices =
       step.values.preference.value === 'Apples'
         ? ['Apple Juice', 'Appletini']
@@ -114,16 +116,32 @@ class FruitDialog extends ComponentDialog {
   }
 
   async finalStep(step) {
+    console.log(step.values);
     step.values.drink = step.result;
+    const {
+      preference,
+      preferenceType,
+      standApart,
+      drink,
+      special
+    } = step.values;
 
-    if (
-      step.values.drink.value === 'Appletini' ||
-      step.values.drink.value === 'Peartini'
-    ) {
+    if (drink.value === 'Appletini' || drink.value === 'Peartini') {
       step.context.sendActivity('Shaken, not Stirred!');
     } else {
       step.context.sendActivity('A healthy option!');
     }
+
+    // show a summary of the choices
+    step.context.sendActivity(`Here's a summary of your choices: \n 
+      Prefered fruit: ${preference.value} \n 
+      Reason ${preference.value.toLowerCase()} stand apart: ${standApart} \n 
+      Prefered type of ${this.singular(preference.value)}: ${
+      preferenceType.value
+    } \n 
+      Reason ${preferenceType.value.toLowerCase()} ${preference.value.toLowerCase()} are special: ${special} \n 
+      Prefered ${this.singular(preference.value)} drink: ${drink.value}
+      `);
 
     return await step.endDialog();
   }
