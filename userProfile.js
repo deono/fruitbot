@@ -1,7 +1,6 @@
 class UserProfile {
-  constructor(name, selectedFruit) {
+  constructor(name, age) {
     this.name = name;
-    this.selectedFruit = selectedFruit;
   }
 }
 

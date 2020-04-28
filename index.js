@@ -17,8 +17,8 @@ app.get('/', (req, res) => {
 });
 
 // Import Dialog Bot class and Dialog class
-const { DialogBot } = require('./dialogBot');
-const { Dialog } = require('./dialog');
+const { DialogBot } = require('./bots/dialogBot');
+const { MainDialog } = require('./dialogs/mainDialog');
 
 // Import environment varaibles.
 const ENV_FILE = path.join(__dirname, '.env');
@@ -44,7 +44,7 @@ const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
 
 // Create the main dialog.
-const dialog = new Dialog(userState);
+const dialog = new MainDialog(userState);
 const bot = new DialogBot(conversationState, userState, dialog);
 
 // Catch-all for errors.
