@@ -1,11 +1,13 @@
 const {
+  DialogSet,
   ComponentDialog,
   ChoicePrompt,
   ChoiceFactory,
   TextPrompt,
-  WaterfallDialog
+  WaterfallDialog,
+  DialogTurnStatus
 } = require('botbuilder-dialogs');
-const { UserProfile } = require('../userProfile');
+const { UserProfile } = require('./userProfile');
 
 const USER_PROFILE = 'USER_PROFILE';
 const NAME_PROMPT = 'NAME_PROMPT';
@@ -20,6 +22,7 @@ class Dialog extends ComponentDialog {
     super('dialog');
 
     this.userProfile = userState.createProperty(USER_PROFILE);
+    this.userProfileAccessor = {};
 
     // create waterfall steps & prompts
     this.addDialog(new TextPrompt(NAME_PROMPT));
@@ -34,17 +37,20 @@ class Dialog extends ComponentDialog {
         this.preferenceStep.bind(this),
         this.standApartStep.bind(this),
         this.favoriteStep.bind(this),
-        this.specialStep.bind(this)
+        this.specialStep.bind(this),
+        this.finalStep.bind(this)
       ])
     );
 
     this.initialDialogId = WATERFALL_DIALOG;
   }
 
+  // helper method to create and access the dialog context
   async run(turnContext, accessor) {
     const dialogSet = new DialogSet(accessor);
     dialogSet.add(this);
 
+    // create dialog context to interact with the dialog set
     const dialogContext = await dialogSet.createContext(turnContext);
     const results = await dialogContext.continueDialog();
     if (results.status === DialogTurnStatus.empty) {
@@ -63,12 +69,12 @@ class Dialog extends ComponentDialog {
     // TODO: might not be necesary to set step.values for this usecase
     step.values.name = step.result;
     // Get the current profile object from user state.
-    const userProfile = await this.userProfile.get(
+    this.userProfileAccessor = await this.userProfile.get(
       step.context,
       new UserProfile()
     );
     // store the name in the user state
-    userProfile.name = step.result;
+    this.userProfileAccessor.name = step.result;
     return await step.prompt(PREFERENCE_PROMPT, {
       prompt: `Ok, ${step.values.name}. What do you prefer, apples or pears?`,
       choices: ChoiceFactory.toChoices(['Apples', 'Pears'])
@@ -78,32 +84,39 @@ class Dialog extends ComponentDialog {
   async standApartStep(step) {
     // retain the users preference
     step.values.preference = step.result;
+    console.log('preference', step.values.preference.value);
     return await step.prompt(
       STAND_APPART_PROMPT,
-      `Interesting. So what is it that makes ${step.result} stand appart for you?`
+      `Interesting. So what is it that makes ${step.values.preference.value} stand appart for you?`
     );
   }
 
   async favoriteStep(step) {
     const choices =
-      step.values.preference === 'Apples'
+      step.values.preference.value === 'Apples'
         ? ['Gala', 'Fuji', 'Breaburn']
         : ['Forelle', 'Bosc', 'Bartlett'];
-    return await step.prompt(
-      FAVORITE_PROMPT, {
-        prompt: `Ok. What type of ${step.values.preference} is your favorite?`,
-        choices: ChoiceFactory.toChoices(choices);
-      }
-    );
+    return await step.prompt(FAVORITE_PROMPT, {
+      prompt: `Ok. What type of ${step.values.preference.value} is your favorite?`,
+      choices: ChoiceFactory.toChoices(choices)
+    });
   }
 
   async specialStep(step) {
-    return await step.prompt(SPECIAL_PROMPT, `Nice! What makes the ${step.result} ${step.values.preference} so special?`)
+    step.values.preferenceType = step.result;
+    return await step.prompt(
+      SPECIAL_PROMPT,
+      `Nice! What makes the ${step.values.preferenceType.value} ${step.values.preference.value} so special?`
+    );
   }
 
   async finalStep(step) {
-    await step.context.sendActivity(`Cool! Well lovely to meet you ${UserProfile.name}. Have a great day. HomeworkBot signing off.`);
+    await step.context.sendActivity(
+      `Cool! Well lovely to meet you ${this.userProfileAccessor.name}. Have a great day. FruitBot signing off.`
+    );
 
     return await step.endDialog();
   }
 }
+
+module.exports.Dialog = Dialog;

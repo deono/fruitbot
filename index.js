@@ -16,8 +16,9 @@ app.get('/', (req, res) => {
   res.send('You found the homework bot');
 });
 
-// This bot's main dialog.
-const { HomeworkBot } = require('./bot');
+// Import Dialog Bot class and Dialog class
+const { DialogBot } = require('./dialogBot');
+const { Dialog } = require('./dialog');
 
 // Import environment varaibles.
 const ENV_FILE = path.join(__dirname, '.env');
@@ -43,7 +44,8 @@ const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
 
 // Create the main dialog.
-const myBot = new HomeworkBot(conversationState, userState);
+const dialog = new Dialog(userState);
+const bot = new DialogBot(conversationState, userState, dialog);
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context, error) => {
@@ -78,7 +80,7 @@ app.post('/api/messages', (req, res) => {
   console.log('api/messages called');
   adapter.processActivity(req, res, async context => {
     // Route to main dialog.
-    await myBot.run(context);
+    await bot.run(context);
   });
 });
 
@@ -95,6 +97,6 @@ app.on('upgrade', (req, socket, head) => {
   streamingAdapter.useWebSocket(req, socket, head, async context => {
     // After connecting via WebSocket, run this logic for every request sent over
     // the WebSocket connection.
-    await myBot.run(context);
+    await bot.run(context);
   });
 });
