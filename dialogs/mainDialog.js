@@ -1,3 +1,8 @@
+/**
+ * The MainDialog gets the users name and stores it in userState.
+ * It then hands off to the FruitDialog.
+ */
+
 const {
   ComponentDialog,
   DialogSet,
@@ -17,8 +22,8 @@ class MainDialog extends ComponentDialog {
   constructor(userState) {
     super(MAIN_DIALOG);
 
-    // this.userState = userState;
-    // this.userProfileAccessor = userState.createProperty(USER_PROFILE_PROPERTY);
+    if (!userState)
+      throw new Error('[MainDialog]: Missing parameter. userState is required');
 
     this.userProfile = userState.createProperty(USER_PROFILE_PROPERTY);
     this.userProfileAccessor = {};
@@ -62,8 +67,6 @@ class MainDialog extends ComponentDialog {
   }
 
   async handOverStep(step) {
-    // TODO: might not be necesary to set step.values for this usecase
-    step.values.name = step.result;
     // Get the current profile object from user state.
     this.userProfileAccessor = await this.userProfile.get(
       step.context,

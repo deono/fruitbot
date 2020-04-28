@@ -11,11 +11,6 @@ const {
   UserState
 } = require('botbuilder');
 
-// test route
-app.get('/', (req, res) => {
-  res.send('You found the homework bot');
-});
-
 // Import Dialog Bot class and Dialog class
 const { DialogBot } = require('./bots/dialogBot');
 const { MainDialog } = require('./dialogs/mainDialog');
@@ -77,7 +72,6 @@ adapter.onTurnError = onTurnErrorHandler;
 
 // Listen for incoming requests.
 app.post('/api/messages', (req, res) => {
-  console.log('api/messages called');
   adapter.processActivity(req, res, async context => {
     // Route to main dialog.
     await bot.run(context);

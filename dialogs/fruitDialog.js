@@ -1,3 +1,8 @@
+/**
+ * The FruitDialog asks the user questions about their prefered fruit.
+ * Once the dialog is done it returns to MainDialog.
+ */
+
 const {
   ComponentDialog,
   ChoicePrompt,
@@ -18,8 +23,12 @@ class FruitDialog extends ComponentDialog {
   constructor(userState) {
     super(FRUIT_DIALOG);
 
+    if (!userState)
+      throw new Error(
+        '[FruitDialog]: Missing parameter. userState is required'
+      );
+
     this.userState = userState;
-    console.log(userState);
 
     // create waterfall steps & prompts
     this.addDialog(new ChoicePrompt(PREFERENCE_PROMPT));
@@ -40,10 +49,10 @@ class FruitDialog extends ComponentDialog {
   }
 
   async preferenceStep(step) {
+    // retrieve the user's name from userState
     const {
       USER_PROFILE_PROPERTY: { name }
     } = await this.userState.get(step.context);
-    console.log('name', name);
 
     return await step.prompt(PREFERENCE_PROMPT, {
       prompt: `Ok, ${name}. What do you prefer, apples or pears?`,
@@ -57,15 +66,17 @@ class FruitDialog extends ComponentDialog {
     console.log('preference', step.values.preference.value);
     return await step.prompt(
       STAND_APPART_PROMPT,
-      `Interesting. So what is it that makes ${step.values.preference.value.toLowerCase()} stand appart for you?`
+      `Interesting. So what is it that makes ${step.values.preference.value.toLowerCase()} stand apart for you?`
     );
   }
 
   async favoriteStep(step) {
+    // present correct choices based on prefered fruit option
     const choices =
       step.values.preference.value === 'Apples'
         ? ['Gala', 'Fuji', 'Breaburn']
         : ['Forelle', 'Bosc', 'Bartlett'];
+
     return await step.prompt(FAVORITE_PROMPT, {
       prompt: `Ok. What type of ${this.singular(
         step.values.preference.value
@@ -84,14 +95,7 @@ class FruitDialog extends ComponentDialog {
     );
   }
 
-  // async finalStep(step) {
-  //   await step.context.sendActivity(
-  //     `Cool! Well lovely to meet you ${this.userProfileAccessor.name}. Have a great day. FruitBot signing off.`
-  //   );
-
-  //   return await step.endDialog();
-  // }
-
+  // helper method: remove the last character from string
   singular(item) {
     return item.slice(0, item.length - 1).toLowerCase();
   }

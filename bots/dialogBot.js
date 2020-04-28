@@ -1,3 +1,7 @@
+/**
+ * DialogBot initialises the MainDialog when a message is received.
+ */
+
 const { ActivityHandler, MessageFactory } = require('botbuilder');
 
 class DialogBot extends ActivityHandler {
