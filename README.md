@@ -1,6 +1,6 @@
 # FruitBot
 
-Chatbot created Microsoft Bot Framework
+Chatbot created with Microsoft Bot Framework
 
 ## Prerequisites
 
